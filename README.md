@@ -1,4 +1,4 @@
-# toy-programming-language-complier
+# Toy-Programming-Language-Complier
 
 ## Project setup
 ```
