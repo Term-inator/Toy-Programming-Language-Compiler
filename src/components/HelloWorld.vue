@@ -31,11 +31,17 @@
 </template>
 
 <script>
+import {lexicalAnalyzer} from "../compiler/lex"
+
 export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
-  }
+    name: 'HelloWorld',
+    props: {
+        msg: String
+    },
+    mounted() {
+        let s = "int a = 0"
+        console.log(lexicalAnalyzer(s))
+    }
 }
 </script>
 
