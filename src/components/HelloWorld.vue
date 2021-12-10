@@ -39,7 +39,7 @@ export default {
         msg: String
     },
     mounted() {
-        let s = "int a = 0"
+        let s = "if( a == 1) then b = 1;\n  else c = 2;"
         console.log(lexicalAnalyzer(s))
     }
 }
