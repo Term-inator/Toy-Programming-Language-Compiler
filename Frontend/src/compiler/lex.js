@@ -26,7 +26,8 @@ function initStateSet() {
         state_set.push({ id: 23, token_type: "comments" })
     }
 }
-// TODO 加一个识别形如12a的状态
+
+let keywords = ["int", "real", "if", "then", "else", "while"]
 
 function isIgnore(c) {
     if (c === '\n' || c === '\t' || c === ' ') {
@@ -228,7 +229,13 @@ export function lexicalAnalyzer(input) {
             state_set.forEach(state => {
                 if (state.id === current_state_id) {
                     if(state.token_type !== "ignore") {
-                        tokens.push(new LexAttr(state.token_type, input.substring(pre_index + 1, now_index + 1), line_num, pre_index))
+                        let token = new LexAttr(state.token_type, input.substring(pre_index + 1, now_index + 1), line_num, pre_index)
+                        keywords.forEach(keyword => {
+                            if(keyword === token.attr_val) {
+                                token.token_type = "keywords"
+                            }
+                        })
+                        tokens.push(token)
                         console.log(state.token_type, pre_index + 1, now_index + 1, line_num, pre_index)
                     }
                     current_state_id = 0
