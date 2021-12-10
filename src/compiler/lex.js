@@ -2,17 +2,17 @@ let state_set = []
 function initStateSet() {
     if(state_set.length === 0) {
         state_set.push({ id: 1, token_type: "numbers" })
-        state_set.push({ id: 2, token_type: "numbers" })
-        state_set.push({ id: 3, token_type: "numbers" })
+        state_set.push({ id: 2, token_type: "error" })
+        state_set.push({ id: 3, token_type: "error" })
         state_set.push({ id: 4, token_type: "numbers" })
-        state_set.push({ id: 5, token_type: "numbers" })
+        state_set.push({ id: 5, token_type: "error" })
         state_set.push({ id: 6, token_type: "numbers" })
-        state_set.push({ id: 7, token_type: "numbers" })
+        state_set.push({ id: 7, token_type: "error" })
         state_set.push({ id: 8, token_type: "numbers" })
-        state_set.push({ id: 9, token_type: "numbers" })
-        state_set.push({ id: 10, token_type: "numbers" })
+        state_set.push({ id: 9, token_type: "error" })
+        state_set.push({ id: 10, token_type: "error" })
         state_set.push({ id: 11, token_type: "numbers" })
-        state_set.push({ id: 12, token_type: "numbers" })
+        state_set.push({ id: 12, token_type: "error" })
         state_set.push({ id: 13, token_type: "numbers" })
         state_set.push({ id: 14, token_type: "identifiers" })
         state_set.push({ id: 15, token_type: "identifiers" })
@@ -240,5 +240,13 @@ export function lexicalAnalyzer(input) {
 
         ++line_pos
     }
+
+    for(let i = 0; i < tokens.length - 1; ++i) {
+        if(tokens[i].token_type === "error") {
+            // TODO
+            console.log("err!", tokens[i].attr_val, tokens[i+1].attr_val)
+        }
+    }
+
     return tokens
 }
