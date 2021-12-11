@@ -1,8 +1,20 @@
 <template>
     <div class='mainpage'>
         <div class='main'>
-            <Input id='workspace' v-model='code' type='textarea' :rows='20' placeholder='Enter your code...' />
-            <Button @click='commitCode'>提交</Button>
+            <Row type='flex' justify='space-around' style='padding: 4vh 0 0 0'>
+                <Col span='14'>
+                    <Row>
+                        <Input id='workspace' v-model='code' type='textarea' :rows='24' placeholder='Enter your code...' />
+                    </Row>
+                    <br>
+                    <Row>
+                        <Button type='success' size='large' @click='commitCode'>提交</Button>
+                    </Row>
+                </Col>
+                <Col span='8'>
+                    <div style='white-space: pre-wrap'>{{ lex_string }}</div>
+                </Col>
+            </Row>
         </div>
     </div>
 </template>
@@ -18,7 +30,9 @@ export default {
     },
     data() {
         return {
-            code: ""
+            code: "",
+            lex_attrs: [],
+            lex_string: "",
         }
     },
     mounted() {
@@ -39,14 +53,28 @@ export default {
     },
     methods: {
         commitCode() {
-            // let s = "if(a)then 1else {b = c}"
-            console.log(lexicalAnalyzer(this.code))
+            if(this.code === '') {
+                // TODO 空
+                return
+            }
+            this.lex_attrs = lexicalAnalyzer(this.code)
+            this.showLexAttrs()
+        },
+        showLexAttrs() {
+            let res = ""
+            this.lex_attrs.forEach(lex_attr => {
+                res += lex_attr.toString() + '\n'
+            })
+            this.lex_string = res
+            console.log(this.lex_string)
         }
     }
 }
 </script>
 
 <style>
+@import "../../assets/css/base.css";
+
 .mainpage {
     min-height: 88vh;
     padding: 8vh 0 10vh 0;

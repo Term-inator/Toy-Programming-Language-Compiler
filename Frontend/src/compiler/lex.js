@@ -39,7 +39,7 @@ function isIgnore(c) {
 }
 
 function isLetter(c) {
-    if ((c >= 'a' && c <= 'z') || (c >= 'Z' && c <= 'Z')) {
+    if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
         return true
     }
     else {
@@ -93,8 +93,8 @@ function isDivi(c) {
 }
 
 class LexAttr {
-    token_type = ""
-    attr_val = ""
+    token_type = ''
+    attr_val = ''
     line_num = -1
     line_pos = -1
 
@@ -103,6 +103,10 @@ class LexAttr {
         this.attr_val = attr_val
         this.line_num = line_num
         this.line_pos = line_pos
+    }
+
+    toString() {
+        return "(" + this.token_type + ', ' + this.attr_val + ', ' + this.line_num + ', ' + this.line_pos + ')\n'
     }
 }
 
@@ -228,14 +232,14 @@ export function lexicalAnalyzer(input) {
             state_set.forEach(state => {
                 if (state.id === current_state_id) {
                     if(state.token_type !== "ignore") {
-                        let token = new LexAttr(state.token_type, input.substring(pre_index + 1, now_index + 1), line_num, line_pos)
+                        let token_val = input.substring(pre_index + 1, now_index + 1)
+                        let token = new LexAttr(state.token_type, token_val, line_num, line_pos - token_val.length)
                         keywords.forEach(keyword => {
                             if(keyword === token.attr_val) {
                                 token.token_type = "keywords"
                             }
                         })
                         tokens.push(token)
-                        console.log(state.token_type, pre_index + 1, now_index + 1, line_num, line_pos)
                     }
                     current_state_id = 0
                     pre_index = now_index
