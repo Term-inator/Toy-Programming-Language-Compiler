@@ -33,10 +33,12 @@ export default {
   padding: 0 4vw 0 4vw;
   text-align: center;
   font-size: 5vh;
+  border-radius: 5px;
   cursor: pointer;
 }
 
 .nav-bar-item:hover {
+    color: black;
     background-color: rgba(0, 0, 0, .1);
 }
 

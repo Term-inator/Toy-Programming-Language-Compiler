@@ -218,7 +218,6 @@ export function lexicalAnalyzer(input) {
         if (c === '\n') {
             ++line_num
             line_pos = 0
-            continue
         }
 
         current_state_id = state_transfer(current_state_id, c)
@@ -229,14 +228,14 @@ export function lexicalAnalyzer(input) {
             state_set.forEach(state => {
                 if (state.id === current_state_id) {
                     if(state.token_type !== "ignore") {
-                        let token = new LexAttr(state.token_type, input.substring(pre_index + 1, now_index + 1), line_num, pre_index)
+                        let token = new LexAttr(state.token_type, input.substring(pre_index + 1, now_index + 1), line_num, line_pos)
                         keywords.forEach(keyword => {
                             if(keyword === token.attr_val) {
                                 token.token_type = "keywords"
                             }
                         })
                         tokens.push(token)
-                        console.log(state.token_type, pre_index + 1, now_index + 1, line_num, pre_index)
+                        console.log(state.token_type, pre_index + 1, now_index + 1, line_num, line_pos)
                     }
                     current_state_id = 0
                     pre_index = now_index
