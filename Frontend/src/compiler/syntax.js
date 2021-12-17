@@ -2,6 +2,7 @@ import { getProductionRule, getAnalyzeTable } from '../api/syntax'
 import { trim }  from './utils'
 
 const EPS = ''
+const END = '$'
 
 class ProductionRule {
     /**
@@ -80,6 +81,74 @@ export function getLRAnalyzeTable() {
     }).catch(() => {})
 }
 
-export function syntaxAnalyzer() {
-    
+// syntax analyze
+function empty(state_stack, symbol_stack) {
+    if(state_stack.length !== 1 || state_stack[0] !== 0) {
+        return false
+    }
+    if(symbol_stack.length !== 1 || symbol_stack[0] !== END) {
+        return false
+    }
+    return true
+}
+
+function top(stack) {
+    if(stack.length === 0) {
+        return null
+    }
+    return stack[stack.length - 1]
+}
+
+function parseCommand(command) {  // s1 r2 etc.
+    if(command === 'acc') {
+        return {
+            op: 'acc'
+        }
+    }
+    let op = command[0]
+    if(op === 's') {
+        return {
+            op: op,
+            dst: command.substring(1)
+        }
+    }
+    else if(op === 'r') {
+        return {
+            op: op,
+            production_rule_id: command
+        }
+    }
+}
+
+export function syntaxAnalyzer(input) {
+    let state_stack = [0]
+    let symbol_stack = [END]
+    input.push(END)
+    console.log(input)
+    input.forEach((token) => {
+        let state_top = top(state_stack)
+        let command = analyze_table[state_top][token.attr_val]
+        command = parseCommand(command)
+        if(command.op === 's') {
+            state_stack.push(Number(command.dst))
+            symbol_stack.push(token)
+        }
+        else if(command.op === 'r') {
+            let production_rule = production_rules[command.production_rule_id]
+            for(let i = 0; i < production_rule.right.length; ++i) {
+                state_stack.pop()
+                symbol_stack.pop()
+            }
+            state_stack.push(Number(analyze_table[top(state_stack)][production_rule.left]))
+            symbol_stack.push(production_rule.left)
+        }
+        else if(command.op === 'acc') {
+            console.log('acc')
+            return
+        }
+        if(empty(state_stack, symbol_stack)) {
+            console.log('fail')
+            return
+        }
+    })
 }

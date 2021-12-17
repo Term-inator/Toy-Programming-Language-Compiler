@@ -62,7 +62,7 @@ export default {
             }
             this.lex_attrs = lexicalAnalyzer(this.code)
             this.showLexAttrs()
-            syntaxAnalyzer()
+            syntaxAnalyzer(this.lex_attrs)
         },
         showLexAttrs() {
             let res = ""
