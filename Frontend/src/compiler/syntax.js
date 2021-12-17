@@ -25,3 +25,7 @@ export function getLRAnalyzeTable() {
         setAnalyzeTable(data.data)
     }).catch(() => {})
 }
+
+export function syntaxAnalyzer() {
+    
+}
