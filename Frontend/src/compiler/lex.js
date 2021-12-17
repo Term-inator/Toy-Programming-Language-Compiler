@@ -106,7 +106,7 @@ class LexAttr {
     }
 
     toString() {
-        return "(" + this.token_type + ', ' + this.attr_val + ', ' + this.line_num + ', ' + this.line_pos + ')\n'
+        return "(" + this.token_type + ', ' + this.attr_val + ', ' + this.line_num + ', ' + this.line_pos + ')'
     }
 }
 

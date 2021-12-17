@@ -4,7 +4,7 @@
             <Row type='flex' justify='space-around' style='padding: 4vh 0 0 0'>
                 <Col span='14'>
                     <Row>
-                        <Input id='workspace' v-model='code' type='textarea' :rows='24' placeholder='Enter your code...' />
+                        <Input id='work-space' v-model='code' type='textarea' :rows='17' placeholder='Enter your code...' />
                     </Row>
                     <br>
                     <Row>
@@ -12,7 +12,7 @@
                     </Row>
                 </Col>
                 <Col span='8'>
-                    <div style='white-space: pre-wrap'>{{ lex_string }}</div>
+                    <Input id='log-space' v-model='lex_string' type='textarea' :rows='17' readonly />
                 </Col>
             </Row>
         </div>
@@ -54,7 +54,7 @@ export default {
     methods: {
         commitCode() {
             if(this.code === '') {
-                // TODO 空
+                // TODO 空处理
                 return
             }
             this.lex_attrs = lexicalAnalyzer(this.code)
@@ -72,7 +72,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 @import "../../assets/css/base.css";
 
 .mainpage {
@@ -80,7 +80,8 @@ export default {
     padding: 8vh 0 10vh 0;
 }
 
-textarea {
+#work-space /deep/ .ivu-input, #log-space /deep/ .ivu-input {
+    font-size: 3vh;
     resize: none;
 }
 </style>
