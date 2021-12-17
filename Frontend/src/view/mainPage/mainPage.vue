@@ -22,7 +22,7 @@
 <script>
 import $ from 'jquery'
 import {lexicalAnalyzer} from '@/compiler/lex'
-import {getLRAnalyzeTable, syntaxAnalyzer} from '@/compiler/syntax'
+import {getLRProductionRule, getLRAnalyzeTable, syntaxAnalyzer} from '@/compiler/syntax'
 
 export default {
     name: 'HelloWorld',
@@ -51,6 +51,7 @@ export default {
                 this.setSelectionRange(start + indent.length, start + selected.length)
             }
         })
+        getLRProductionRule()
         getLRAnalyzeTable()
     },
     methods: {

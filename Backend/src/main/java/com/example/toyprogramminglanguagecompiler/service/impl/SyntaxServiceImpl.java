@@ -1,26 +1,19 @@
 package com.example.toyprogramminglanguagecompiler.service.impl;
 
 import com.example.toyprogramminglanguagecompiler.service.SyntaxService;
-import org.springframework.core.io.ClassPathResource;
+import com.example.toyprogramminglanguagecompiler.utils.ResourceReader;
 
-import java.io.*;
 
 public class SyntaxServiceImpl implements SyntaxService {
     @Override
-    public String readAnalyzeTable() {
-        String result = "";
-        ClassPathResource classPathResource = new ClassPathResource("static/analyzeTable.txt");
-        try {
-            InputStream inputStream = classPathResource.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "unicode"));
-            String line = null;
-            while((line = reader.readLine()) != null) {
-                result += (line + '\n');
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public String readProductionRules() {
+        ResourceReader reader = new ResourceReader();
+        return reader.read("production_rules.txt", "utf-8");
+    }
 
-        return result;
+    @Override
+    public String readAnalyzeTable() {
+        ResourceReader reader = new ResourceReader();
+        return reader.read("analyze_table.txt", "unicode");
     }
 }

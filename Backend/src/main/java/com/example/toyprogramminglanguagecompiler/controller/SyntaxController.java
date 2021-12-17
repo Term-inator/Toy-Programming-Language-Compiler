@@ -9,9 +9,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/syntax")
 public class SyntaxController {
+    SyntaxServiceImpl syntaxService = new SyntaxServiceImpl();
+
+    @GetMapping("/production_rule")
+    public String getProductionRule() {
+        String result = syntaxService.readProductionRules();
+        return result;
+    }
+
     @GetMapping("/analyze_table")
     public String getAnalyzeTable() {
-        SyntaxServiceImpl syntaxService = new SyntaxServiceImpl();
         String result = syntaxService.readAnalyzeTable();
         return result;
     }
