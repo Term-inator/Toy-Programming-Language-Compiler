@@ -132,7 +132,7 @@ function parseCommand(command) {  // s1 r2 etc.
     else if(op === 'r') {
         return {
             op: op,
-            production_rule_id: command
+            production_rule_id: command.substring(1)
         }
     }
     else {
@@ -149,6 +149,7 @@ export function syntaxAnalyzer(input) {
         let token = input[i]
         let state_top = top(state_stack)
         let command = analyze_table[state_top][tokenToTerminal(token)]
+        console.log(state_top, tokenToTerminal(token))
         console.log(command)
         command = parseCommand(command)
         if(command.op === 's') {
@@ -157,6 +158,7 @@ export function syntaxAnalyzer(input) {
         }
         else if(command.op === 'r') {
             let production_rule = production_rules[command.production_rule_id]
+            console.log(command.production_rule_id)
             for(let i = 0; i < production_rule.right.length; ++i) {
                 state_stack.pop()
                 symbol_stack.pop()
