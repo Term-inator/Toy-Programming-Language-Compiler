@@ -4,10 +4,10 @@
         <navBarItem name="mainpage">
             <div slot="item-text">首页</div>
         </navBarItem>
-        <!-- <navBarItem>
-            <div slot="item-text"></div>
+        <navBarItem name="astPage">
+            <div slot="item-text">语法树</div>
         </navBarItem>
-        <navBarItem>
+        <!-- <navBarItem>
             <div slot="item-text"></div>
         </navBarItem>
         <navBarItem></navBarItem>

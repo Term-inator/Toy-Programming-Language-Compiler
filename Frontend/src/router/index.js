@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 
 const main_page = () => import('@/view/mainPage/mainPage')
+const ast_page = () => import('@/view/astPage/astPage')
 
 Vue.use(VueRouter)
 const routes = [
@@ -13,6 +14,11 @@ const routes = [
         name: 'mainpage',
         path: '/mainpage',
         component: main_page
+    },
+    {
+        name: 'astPage',
+        path: '/astPage',
+        component: ast_page
     }
 ]
 

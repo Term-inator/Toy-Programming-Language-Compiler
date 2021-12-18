@@ -25,7 +25,7 @@ import {lexicalAnalyzer} from '@/compiler/lex'
 import {getLRProductionRule, getLRAnalyzeTable, syntaxAnalyzer} from '@/compiler/syntax'
 
 export default {
-    name: 'HelloWorld',
+    name: 'mainPage',
     props: {
         msg: String
     },
