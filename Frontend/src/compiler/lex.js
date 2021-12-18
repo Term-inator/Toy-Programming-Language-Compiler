@@ -226,7 +226,7 @@ export function lexicalAnalyzer(input) {
 
         current_state_id = state_transfer(current_state_id, c)
         next_state_id = state_transfer(current_state_id, next_c)
-        console.log(c, current_state_id, next_state_id)
+        // console.log(c, current_state_id, next_state_id)
         
         if (next_state_id === 0 || i === input.length - 2) {
             state_set.forEach(state => {

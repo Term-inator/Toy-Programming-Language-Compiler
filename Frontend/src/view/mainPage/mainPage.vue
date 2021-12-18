@@ -31,7 +31,7 @@ export default {
     },
     data() {
         return {
-            code: "",
+            code: "int a = 1;",
             lex_attrs: [],
             lex_string: "",
         }

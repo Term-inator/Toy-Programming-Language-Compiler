@@ -49,6 +49,7 @@ function setProductionRules(production_rule_str) {
 let analyze_table = []
 
 function setAnalyzeTable(analyze_table_str) {
+    console.log(analyze_table_str)
     let rows = trim(analyze_table_str).split('\n')
     let headers = trim(rows[0]).split(' ')
     rows.shift()
@@ -99,6 +100,22 @@ function top(stack) {
     return stack[stack.length - 1]
 }
 
+function tokenToTerminal(token) {
+    if(token === END) {
+        return token
+    }
+    switch(token.token_type) {
+        case 'identifiers':
+            return 'ID'
+        case 'intnum':
+            return 'INTNUM'
+        case 'realnum':
+            return 'REALNUM'
+        default:
+            return token.attr_val
+    }
+}
+
 function parseCommand(command) {  // s1 r2 etc.
     if(command === 'acc') {
         return {
@@ -118,16 +135,21 @@ function parseCommand(command) {  // s1 r2 etc.
             production_rule_id: command
         }
     }
+    else {
+        return command
+    }
 }
 
 export function syntaxAnalyzer(input) {
     let state_stack = [0]
     let symbol_stack = [END]
     input.push(END)
-    console.log(input)
-    input.forEach((token) => {
+    console.log(analyze_table)
+    for(let i = 0; i < input.length; ++i) {
+        let token = input[i]
         let state_top = top(state_stack)
-        let command = analyze_table[state_top][token.attr_val]
+        let command = analyze_table[state_top][tokenToTerminal(token)]
+        console.log(command)
         command = parseCommand(command)
         if(command.op === 's') {
             state_stack.push(Number(command.dst))
@@ -146,9 +168,9 @@ export function syntaxAnalyzer(input) {
             console.log('acc')
             return
         }
-        if(empty(state_stack, symbol_stack)) {
+        if(empty(state_stack, symbol_stack) || i === input.length - 1) {
             console.log('fail')
             return
         }
-    })
+    }
 }
