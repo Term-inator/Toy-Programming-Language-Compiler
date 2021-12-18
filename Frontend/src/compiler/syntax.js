@@ -1,6 +1,5 @@
 import { getProductionRule, getAnalyzeTable } from '../api/syntax'
 import { trim }  from './utils'
-import $ from 'jquery'
 
 const EPS = ''
 const END = '$'
@@ -85,10 +84,10 @@ export function getLRAnalyzeTable() {
 
 // syntax analyze
 function empty(state_stack, symbol_stack) {
-    if(state_stack.length !== 1 || state_stack[0] !== 0) {
+    if(state_stack.length > 1 || state_stack[0] !== 0) {
         return false
     }
-    if(symbol_stack.length !== 1 || symbol_stack[0] !== END) {
+    if(symbol_stack.length > 1 || symbol_stack[0] !== END) {
         return false
     }
     return true
@@ -137,7 +136,9 @@ function parseCommand(command) {  // s1 r2 etc.
         }
     }
     else {
-        return command
+        return {
+            op: 'e' // 对应表项为0
+        }
     }
 }
 
@@ -145,38 +146,49 @@ export function syntaxAnalyzer(input) {
     let state_stack = [0]
     let symbol_stack = [END]
     input.push(END)
+    console.log(input)
     for(let i = 0; i < input.length; ++i) {
-        let token = null
-        if(input[i] === END) {
-            token = END
-        }
-        else {
-            token = $.extend(true, {}, input[i])
-        }
+        let token = input[i]
         let state_top = top(state_stack)
         let command = analyze_table[state_top][tokenToTerminal(token)]
         command = parseCommand(command)
+        console.log(command)
         if(command.op === 's') {
             state_stack.push(Number(command.dst))
             symbol_stack.push(token)
         }
         else if(command.op === 'r') {
             let production_rule = production_rules[command.production_rule_id]
+            console.log(production_rule)
             for(let j = 0; j < production_rule.right.length; ++j) {
                 if(production_rule.right[j] !== EPS) { // 空产生式不弹栈
                     state_stack.pop()
                     symbol_stack.pop()
                 }
+                console.log(state_stack)
+                symbol_stack.forEach(symbol => console.log(symbol))
             }
             state_stack.push(Number(analyze_table[top(state_stack)][production_rule.left]))
             symbol_stack.push(production_rule.left)
             --i // 规约不压输入字符进栈
         }
-        else if(command.op === 'acc') {
-            console.log('acc')
+        else if(command.op === 'e') {
+            // TODO
+            console.log('fail')
             return
         }
-        if(empty(state_stack, symbol_stack) || i === input.length - 1) {
+        else if(command.op === 'acc') {
+            if(i === input.length - 1) {
+                console.log('acc')
+                return
+            }
+            else {
+                console.log('fail')
+                return
+            }
+        }
+        if(empty(state_stack, symbol_stack) && i === input.length - 1) {
+            // TODO
             console.log('fail')
             return
         }
