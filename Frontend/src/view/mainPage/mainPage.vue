@@ -32,9 +32,7 @@ export default {
     data() {
         return {
             code: "int a = 1; int b = 2; real c = 3.0 ;\n{\n\ta = a + 1 ;\n\tb = b * a ;\n\tif ( a < b ) \n\tthen c = c / 2 ;\n\telse c = c / 4 ;\n}",
-            lex_attrs: [],
-            lex_string: "",
-            syntax_ast: null
+            lex_string: ""
         }
     },
     mounted() {
@@ -61,18 +59,18 @@ export default {
                 // TODO 空处理
                 return
             }
-            this.lex_attrs = lexicalAnalyzer(this.code)
+            let lex_attrs = lexicalAnalyzer(this.code)
+            this.$store.commit('setLexAttrs', lex_attrs)
             this.showLexAttrs()
-            this.syntax_ast = syntaxAnalyzer(this.lex_attrs)
-            console.log(this.syntax_ast)
+            let syntax_ast = syntaxAnalyzer($.extend([], lex_attrs))
+            this.$store.commit('setSyntaxAst', syntax_ast)
         },
         showLexAttrs() {
             let res = ""
-            this.lex_attrs.forEach(lex_attr => {
+            this.$store.state.lex_attrs.forEach(lex_attr => {
                 res += lex_attr.toString() + '\n'
             })
             this.lex_string = res
-            console.log(this.lex_string)
         }
     }
 }
