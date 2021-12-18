@@ -31,7 +31,7 @@ export default {
     },
     data() {
         return {
-            code: "int a = 1;",
+            code: "int a = 1; int b = 2; real c = 3.0 ;\n{\n\ta = a + 1 ;\n\tb = b * a ;\n\tif ( a < b ) \n\tthen c = c / 2 ;\n\telse c = c / 4 ;\n}",
             lex_attrs: [],
             lex_string: "",
         }
