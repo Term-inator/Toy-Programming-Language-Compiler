@@ -3,6 +3,8 @@ import { trim }  from './utils'
 
 const EPS = ''
 const END = '$'
+const TERMINAL = 0
+const N_TERMINAL = 1
 
 class ProductionRule {
     /**
@@ -82,6 +84,27 @@ export function getLRAnalyzeTable() {
     }).catch(() => {})
 }
 
+// AST
+class Node {
+    constructor(type, val, children) {
+        this.type = type // 终结符 val = token : Token; 非终结符 val = production_rule : ProductionRule
+        this.val = val
+        this.children = children
+    }
+
+    getVal() {
+        if(this.type === TERMINAL) {
+            return this.val.attr_val
+        }
+        else if(this.type === N_TERMINAL) {
+            return this.val.left
+        }
+        else {
+            return null
+        }
+    }
+}
+
 // syntax analyze
 function empty(state_stack, symbol_stack) {
     if(state_stack.length > 1 || state_stack[0] !== 0) {
@@ -143,33 +166,39 @@ function parseCommand(command) {  // s1 r2 etc.
 }
 
 export function syntaxAnalyzer(input) {
+    let node_stack = []
+
     let state_stack = [0]
     let symbol_stack = [END]
     input.push(END)
-    console.log(input)
+    // console.log(input)
     for(let i = 0; i < input.length; ++i) {
         let token = input[i]
         let state_top = top(state_stack)
         let command = analyze_table[state_top][tokenToTerminal(token)]
         command = parseCommand(command)
-        console.log(command)
+        // console.log(command)
         if(command.op === 's') {
             state_stack.push(Number(command.dst))
             symbol_stack.push(token)
+            node_stack.push(new Node(TERMINAL, token, null))
         }
         else if(command.op === 'r') {
             let production_rule = production_rules[command.production_rule_id]
-            console.log(production_rule)
+            let children = []
+            // console.log(production_rule)
             for(let j = 0; j < production_rule.right.length; ++j) {
                 if(production_rule.right[j] !== EPS) { // 空产生式不弹栈
                     state_stack.pop()
                     symbol_stack.pop()
+                    children.unshift(node_stack.pop())
                 }
-                console.log(state_stack)
-                symbol_stack.forEach(symbol => console.log(symbol))
+                // console.log(state_stack)
+                // symbol_stack.forEach(symbol => console.log(symbol))
             }
             state_stack.push(Number(analyze_table[top(state_stack)][production_rule.left]))
             symbol_stack.push(production_rule.left)
+            node_stack.push(new Node(N_TERMINAL, production_rule, children))
             --i // 规约不压输入字符进栈
         }
         else if(command.op === 'e') {
@@ -180,9 +209,10 @@ export function syntaxAnalyzer(input) {
         else if(command.op === 'acc') {
             if(i === input.length - 1) {
                 console.log('acc')
-                return
+                return node_stack[0]
             }
             else {
+                // TODO
                 console.log('fail')
                 return
             }
