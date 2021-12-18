@@ -36,6 +36,7 @@ export default {
         }
     },
     mounted() {
+        this.code = this.$store.state.code
         //textarea支持tab缩进
         $('textarea').on('keydown', function(e) {
             let tab_keycode = 9
@@ -59,6 +60,7 @@ export default {
                 // TODO 空处理
                 return
             }
+            this.$store.commit('setCode', this.code)
             let lex_attrs = lexicalAnalyzer(this.code)
             this.$store.commit('setLexAttrs', lex_attrs)
             this.showLexAttrs()
@@ -80,7 +82,7 @@ export default {
 @import "../../assets/css/base.css";
 
 .mainpage {
-    max-height: 88vh;
+    min-height: 88vh;
     padding: 8vh 0 10vh 0;
 }
 
