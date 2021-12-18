@@ -1,6 +1,6 @@
 let state_set = []
 function initStateSet() {
-    if(state_set.length === 0) {
+    if (state_set.length === 0) {
         state_set.push({ id: 1, token_type: "numbers" })
         state_set.push({ id: 2, token_type: "error" })
         state_set.push({ id: 3, token_type: "error" })
@@ -106,7 +106,7 @@ class LexAttr {
     }
 
     toString() {
-        return "(" + this.token_type + ', ' + this.attr_val + ', ' + this.line_num + ', ' + this.line_pos + ')'
+        return "(" + this.token_type + ', ' + this.attr_val + ', ' + this.line_num + ', ' + this.line_pos + ')\n'
     }
 }
 
@@ -214,7 +214,7 @@ export function lexicalAnalyzer(input) {
     let current_state_id = 0
     let next_state_id = 0
 
-    for(let i = 0; i < input.length - 1; ++i) {
+    for (let i = 0; i < input.length - 1; ++i) {
         now_index = i
         let c = input[now_index]
         let next_c = input[now_index + 1]
@@ -226,35 +226,73 @@ export function lexicalAnalyzer(input) {
 
         current_state_id = state_transfer(current_state_id, c)
         next_state_id = state_transfer(current_state_id, next_c)
-        // console.log(c, current_state_id, next_state_id)
-        
+        console.log(c, current_state_id, next_state_id)
+
         if (next_state_id === 0 || i === input.length - 2) {
             state_set.forEach(state => {
                 if (state.id === current_state_id) {
-                    if(state.token_type !== "ignore") {
+                    if (state.token_type !== "ignore") {
                         let token_val = input.substring(pre_index + 1, now_index + 1)
                         let token = new LexAttr(state.token_type, token_val, line_num, line_pos - token_val.length)
                         keywords.forEach(keyword => {
-                            if(keyword === token.attr_val) {
+                            if (keyword === token.attr_val) {
                                 token.token_type = "keywords"
                             }
                         })
+                        // 溢出检查 + 数值保存
+                        if (token.token_type === "numbers") {
+                            let digit_val = []
+                            let num_type = 1 // 1：整数 2：小数 3：大数
+                            for (let k = 0; k < token.attr_val.length; ++k) {
+                                if (token.attr_val[k] === '.') {
+                                    num_type = 2
+                                    break
+                                }
+                                if (isLetter(token.attr_val[k])) {
+                                    num_type = 3
+                                    break
+                                }
+                            }
+                            if (num_type === 1) {
+                                token.token_type = 'intnum'
+                                // for (let i = 0; i < token_val.length; ++i) {
+                                //     digit_val.push(parseInt(token_val[i]))
+                                // }
+                                token.attr_val = Number(token.attr_val)
+                                // while (i >= 0) {
+                                //     num_val += attr_val * Math.pow(10, token_val.length - i - 1)
+                                //     --i
+                                // }
+                                if (token.attr_val > Math.pow(2, 31)) {
+                                    // TODO
+                                    console.log("int out of range")
+                                    token.token_type = "error"
+                                }
+                            }
+                            else {
+                                token.token_type = 'realnum'
+                                if (num_type === 2) {
+
+                                }
+                                else if (num_type === 3) {
+
+                                }
+                            }
+                        }
                         tokens.push(token)
                     }
                     current_state_id = 0
                     pre_index = now_index
-                    return
                 }
             })
         }
-
         ++line_pos
     }
 
-    for(let i = 0; i < tokens.length - 1; ++i) {
-        if(tokens[i].token_type === "error") {
+    for (let i = 0; i < tokens.length - 1; ++i) {
+        if (tokens[i].token_type === "error") {
             // TODO
-            console.log("err!", tokens[i].attr_val, tokens[i+1].attr_val)
+            console.log("err!", tokens[i].attr_val, tokens[i + 1].attr_val)
         }
     }
 
