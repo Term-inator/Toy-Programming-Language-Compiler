@@ -43,6 +43,7 @@ export default {
 }
 
 .active {
-  font-family: siyuan;
+    color: black;
+    font-family: siyuan;
 }
 </style>

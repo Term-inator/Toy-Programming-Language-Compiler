@@ -1,5 +1,5 @@
 
-class Node {
+class SemNode {
     type = ''
     val = 0
     name = ''
@@ -31,7 +31,7 @@ function declare(name, value) {
  * @param {list} nodelist 
  */
 function alOperate1(operate, nodelist) {
-    let r = new Node()
+    let r = new SemNode()
     r.operator = operate
     value = 0
 }
@@ -49,10 +49,10 @@ function alOperate2(nodelist) {
  * 分支语句处理
  * ifstmt -> if ( boolexpr ) then stmt else stmt规约时调用
  * @param {list} nodelist 
- * @returns Node
+ * @returns SemNode
  */
 function ifOperate(nodelist) {
-    let r = new Node()
+    let r = new SemNode()
     let [node1, node2, node3] = nodelist
     if(node1.bool) {
         r = node2
@@ -70,7 +70,7 @@ function ifOperate(nodelist) {
  * @param {list} nodelist 
  */
 function boolOperate(bool, nodelist) {
-    let node = new Node()
+    let node = new SemNode()
     let [node1, node2] = nodelist
     if(bool === '>') {
         node.bool = (node1.val > node2.val)
@@ -97,7 +97,7 @@ function boolOperate(bool, nodelist) {
  * @returns 
  */
 function getSimexpr(token) {
-    let node = new Node()
+    let node = new SemNode()
     if(token.token_type === 'identifiers') {
         node.name = token.attr_val
         node.val = results[results.length - 1].get(node.name) // TODO ?
@@ -111,22 +111,22 @@ function getSimexpr(token) {
 /**
  * stmts -> stmt stmts
  * @param {list} nodelist 
- * @returns Node
+ * @returns SemNode
  */
 function getStmts(nodelist) {
     let temp = {}
     nodelist.forEach((node) => {
         temp.update(node.kv) // TODO ?
     })
-    let r = new Node()
+    let r = new SemNode()
     r.kv = temp
     return r
 }
 
 /**
  * compoundstmt -> { stmts }
- * @param {Node} node 
- * @returns Node
+ * @param {SemNode} node 
+ * @returns SemNode
  */
 function doCompoundstmt(node) {
     results.pop()
@@ -138,8 +138,8 @@ function doCompoundstmt(node) {
  * stmt -> ifstmt
  * stmt -> assgstmt
  * stmt -> compoundstmt
- * @param {Node} node 
- * @returns Node
+ * @param {SemNode} node 
+ * @returns SemNode
  */
 function doStmt(node) {
     if(num_of_if[num_of_if.length - 1] === 0) {
@@ -151,7 +151,7 @@ function doStmt(node) {
 /**
  * 用于返回最终结果
  * program -> decls compoundstmt
- * @param {Node} node 
+ * @param {SemNode} node 
  * @returns 
  */
 function getResult(node) {

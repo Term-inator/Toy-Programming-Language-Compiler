@@ -2,7 +2,7 @@
   <div id="app">
     <navBar>
         <navBarItem name="mainpage">
-            <div slot="item-text">首页</div>
+            <div slot="item-text">工作区</div>
         </navBarItem>
         <navBarItem name="astPage">
             <div slot="item-text">语法树</div>
