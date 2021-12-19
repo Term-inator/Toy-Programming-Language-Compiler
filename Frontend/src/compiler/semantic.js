@@ -17,7 +17,7 @@ let num_of_if = []
  * @param {number} value 词法分析的digit值
  */
 function declare(name, value) {
-    results[results.length - 1] = value
+    results[results.length - 1][name] = value
 }
 
 /**
@@ -87,6 +87,7 @@ function boolOperate(bool, nodelist) {
     else {
         node.bool = (node1.val === node2.val)
     }
+    return node
 }
 
 /**
@@ -160,5 +161,9 @@ function getResult(node) {
     return r
 }
 
-export function semanticAnalyzer(ast) {
+function getSemNode(production_rule) {
+    
+}
+
+export function semanticAnalyzer() {
 }

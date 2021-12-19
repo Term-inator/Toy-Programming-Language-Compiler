@@ -71,7 +71,7 @@ export function getLRProductionRule() {
 
     }).then(data => {
         setProductionRules(data.data)
-        // console.log(production_rules)
+        console.log(production_rules)
     }).catch(() => {})
 }
 

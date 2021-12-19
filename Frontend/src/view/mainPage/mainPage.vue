@@ -67,7 +67,7 @@ export default {
             this.showLexAttrs()
             let syntax_ast = syntaxAnalyzer($.extend([], lex_attrs))
             this.$store.commit('setSyntaxAst', syntax_ast)
-            semanticAnalyzer($.extend([], syntax_ast))
+            semanticAnalyzer()
         },
         showLexAttrs() {
             let res = ""
