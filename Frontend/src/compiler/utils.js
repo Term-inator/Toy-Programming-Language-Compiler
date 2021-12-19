@@ -11,4 +11,11 @@ function rightTrim(str) {
     return str.replace(/(\s*$)/g, "")
 }
 
-export {trim, leftTrim, rightTrim}
+function update(map1, map2) {
+    for(let k in map2) {
+        map1[k] = map2[k]
+    }
+    return map1
+}
+
+export {trim, leftTrim, rightTrim, update}
