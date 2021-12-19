@@ -23,7 +23,6 @@
 import $ from 'jquery'
 import {lexicalAnalyzer} from '@/compiler/lex'
 import {getLRProductionRule, getLRAnalyzeTable, syntaxAnalyzer} from '@/compiler/syntax'
-import {semanticAnalyzer} from '@/compiler/semantic'
 
 export default {
     name: 'mainPage',
@@ -38,6 +37,7 @@ export default {
     },
     mounted() {
         this.code = this.$store.state.code
+        this.code = "int a = 1; {c = a + b;}"
         //textarea支持tab缩进
         $('textarea').on('keydown', function(e) {
             let tab_keycode = 9
@@ -67,7 +67,7 @@ export default {
             this.showLexAttrs()
             let syntax_ast = syntaxAnalyzer($.extend([], lex_attrs))
             this.$store.commit('setSyntaxAst', syntax_ast)
-            semanticAnalyzer()
+            console.log(syntax_ast)
         },
         showLexAttrs() {
             let res = ""

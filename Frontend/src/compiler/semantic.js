@@ -1,13 +1,4 @@
 
-class SemNode {
-    type = ''
-    val = 0
-    name = ''
-    operator = ''
-    bool = true
-    kv = {}
-}
-
 let results = [{}]
 let num_of_if = []
 
@@ -90,10 +81,17 @@ function boolOperate(bool, nodelist) {
     return node
 }
 
+function assgOperate(node) {
+    let r = new SemNode()
+    r.kv['name'] = node.val
+    return r
+}
+
 /**
  * simpleexpr -> INTNUM
  * simpleexpr -> REALNUM
  * simpleexpr -> ID
+ * simpleexpr -> ( simplexpr )
  * @param {Token} token 
  * @returns 
  */
@@ -107,6 +105,12 @@ function getSimexpr(token) {
         node.val = token.attr_val
     }
     return node
+}
+
+function setSimexprArithexpr(node) {
+    let n_node = new SemNode()
+    n_node.val = node.val
+    return n_node
 }
 
 /**
@@ -159,11 +163,4 @@ function getResult(node) {
     let r = results.pop()
     r.update(node.kv) // TODO ?
     return r
-}
-
-function getSemNode(production_rule) {
-    
-}
-
-export function semanticAnalyzer() {
 }
