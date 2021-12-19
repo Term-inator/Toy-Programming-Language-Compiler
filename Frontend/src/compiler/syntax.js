@@ -94,7 +94,7 @@ class Node {
         this.sem = {
             val: 0,
             operator: '',
-            bool: true,
+            bool: '',
             kv: {}
         }
     }
