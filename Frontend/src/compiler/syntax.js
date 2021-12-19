@@ -215,8 +215,9 @@ function getSimexpr(children) {
         kv: {}
     }
     if(children.length === 1) {
-        let token = children[0]
-        if(token.token_type === 'identifiers') {
+        let node = children[0]
+        let token = node.val
+        if(node.type === TERMINAL) {
             sem.val = results[results.length - 1][token.attr_val]
         }
         else {
