@@ -23,6 +23,7 @@
 import $ from 'jquery'
 import {lexicalAnalyzer} from '@/compiler/lex'
 import {getLRProductionRule, getLRAnalyzeTable, syntaxAnalyzer} from '@/compiler/syntax'
+import {semanticAnalyzer} from '@/compiler/semantic'
 
 export default {
     name: 'mainPage',
@@ -66,6 +67,7 @@ export default {
             this.showLexAttrs()
             let syntax_ast = syntaxAnalyzer($.extend([], lex_attrs))
             this.$store.commit('setSyntaxAst', syntax_ast)
+            semanticAnalyzer($.extend([], syntax_ast))
         },
         showLexAttrs() {
             let res = ""
