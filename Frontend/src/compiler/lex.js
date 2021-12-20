@@ -219,9 +219,11 @@ export function lexicalAnalyzer(input) {
         let c = input[now_index]
         let next_c = input[now_index + 1]
         //非法字符,报错后读下一个
-        if (isLetter(c) === false && isBound(c) === false && isDigit(c) === false && isDivi(c) === false && isOp1(c) === false && isOp2(c) === false && isIgnore === false) {
+        if (isLetter(c) === false && isBound(c) === false && isDigit(c) === false && isDivi(c) === false && isOp1(c) === false && isOp2(c) === false && isIgnore(c) === false && c !== '.') {
             let wrongtoken = new LexAttr("error", c, line_num, line_pos)
             tokens.push(wrongtoken)
+            ++line_pos
+            pre_index = now_index
             continue
         }
         if (c === '\n') {
@@ -251,7 +253,7 @@ export function lexicalAnalyzer(input) {
                             let num_type = 1 // 1：整数 2：小数 3：负指数 4：正指数
                             for (let k = 0; k < token.attr_val.length; ++k) {
 
-                                if (isLetter(token.attr_val[k] && token.attr_val[k + 1] === '-')) {
+                                if (isLetter(token.attr_val[k]) && token.attr_val[k + 1] === '-') {
                                     num_type = 3
                                     break
                                 }
@@ -264,6 +266,7 @@ export function lexicalAnalyzer(input) {
                                     break
                                 }
                             }
+                            console.log(num_type)
                             if (num_type === 1) {
                                 token.token_type = 'intnum'
                                 // for (let i = 0; i < token_val.length; ++i) {
@@ -311,7 +314,6 @@ export function lexicalAnalyzer(input) {
 
                                 }
                                 else if (num_type === 3) {
-
                                     let num_val = 0
                                     let basenum = 0
                                     let expnum = 0
@@ -322,7 +324,7 @@ export function lexicalAnalyzer(input) {
                                     let last_val = []//指数
                                     let t = 0
                                     let isFloat = false
-                                    for (let u = 0; u < token.attr_val; ++u) {
+                                    for (let u = 0; u < token.attr_val.length; ++u) {
                                         if (token.attr_val[u] === '.') { isFloat = true }
                                     }
                                     //分情况，无小数点：
@@ -331,17 +333,19 @@ export function lexicalAnalyzer(input) {
                                         for (; token.attr_val[t] != 'E' && token.attr_val[t] != 'e'; ++t) {
                                             front_val.push(parseInt(token.attr_val[t]))
                                         }
-                                        for (; token.attr_val[t] === 'E' || token.attr_val[t] === 'e' || token.attr_val[t] === '+'; ++t) { }//越过E+
+                                        for (; token.attr_val[t] === 'E' || token.attr_val[t] === 'e' || token.attr_val[t] === '-'; ++t) { }//越过E-
                                         for (; t < token.attr_val.length; ++t) {
                                             back_val.push(parseInt(token.attr_val[t]))
                                         }
+                                        console.log('exp', front_val, back_val)
                                         for (let m = 0; m < front_val.length; ++m) {//底数部分求和
                                             basenum += front_val[m] * Math.pow(10, front_val.length - 1 - m)
                                         }
-                                        for (let m = 0; m < front_val.length; ++m) {//指数部分求和
-                                            expnum += back_val[m] * Math.pow(10, front_val.length - 1 - m)
+                                        for (let m = 0; m < back_val.length; ++m) {//指数部分求和
+                                            expnum += back_val[m] * Math.pow(10, back_val.length - 1 - m)
                                         }
-                                        num_val = basenum * Math.pow(10, expnum)
+                                        console.log('exp', expnum)
+                                        num_val = basenum * Math.pow(10, -expnum)
                                         token.attr_val = num_val
                                     }
                                     else {
@@ -386,7 +390,7 @@ export function lexicalAnalyzer(input) {
                                     let last_val = []//指数
                                     let t = 0
                                     let isFloat = false
-                                    for (let u = 0; u < token.attr_val; ++u) {
+                                    for (let u = 0; u < token.attr_val.length; ++u) {
                                         if (token.attr_val[u] === '.') { isFloat = true }
                                     }
                                     //分情况，无小数点：
@@ -399,11 +403,12 @@ export function lexicalAnalyzer(input) {
                                         for (; t < token.attr_val.length; ++t) {
                                             back_val.push(parseInt(token.attr_val[t]))
                                         }
+                                        console.log(front_val, back_val)
                                         for (let m = 0; m < front_val.length; ++m) {//底数部分求和
                                             basenum += front_val[m] * Math.pow(10, front_val.length - 1 - m)
                                         }
-                                        for (let m = 0; m < front_val.length; ++m) {//指数部分求和
-                                            expnum += back_val[m] * Math.pow(10, front_val.length - 1 - m)
+                                        for (let m = 0; m < back_val.length; ++m) {//指数部分求和
+                                            expnum += back_val[m] * Math.pow(10, back_val.length - 1 - m)
                                         }
                                         num_val = basenum * Math.pow(10, expnum)
                                         token.attr_val = num_val

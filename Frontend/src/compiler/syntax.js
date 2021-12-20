@@ -378,6 +378,12 @@ function parseCommand(command) {  // s1 r2 etc.
             op: 'acc'
         }
     }
+    console.log(command)
+    if (command === '0') {
+        return {
+            op: 'e' // 对应表项为0
+        }
+    }
     let op = command[0]
     if (op === 's') {
         return {
@@ -388,10 +394,6 @@ function parseCommand(command) {  // s1 r2 etc.
         return {
             op: op,
             production_rule_id: command.substring(1)
-        }
-    } else {
-        return {
-            op: 'e' // 对应表项为0
         }
     }
 }
