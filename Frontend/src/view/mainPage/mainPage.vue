@@ -37,7 +37,7 @@ export default {
     },
     mounted() {
         this.code = this.$store.state.code
-        // this.code = "int a = 1;int b = 1;int c = 0; {c = a + b;}"
+        this.code = "int a = 1; {a = a + 1.0;}"
         //textarea支持tab缩进
         $('textarea').on('keydown', function(e) {
             let tab_keycode = 9

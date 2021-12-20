@@ -218,7 +218,12 @@ export function lexicalAnalyzer(input) {
         now_index = i
         let c = input[now_index]
         let next_c = input[now_index + 1]
-
+        //非法字符,报错后读下一个
+        if (isLetter(c) === false && isBound(c) === false && isDigit(c) === false && isDivi(c) === false && isOp1(c) === false && isOp2(c) === false && isIgnore === false) {
+            let wrongtoken = new LexAttr("error", c, line_num, line_pos)
+            tokens.push(wrongtoken)
+            continue
+        }
         if (c === '\n') {
             ++line_num
             line_pos = 0
@@ -241,15 +246,21 @@ export function lexicalAnalyzer(input) {
                         })
                         // 溢出检查 + 数值保存
                         if (token.token_type === "numbers") {
-                            let digit_val = []
-                            let num_type = 1 // 1：整数 2：小数 3：大数
+                            // let digit_val = []
+
+                            let num_type = 1 // 1：整数 2：小数 3：负指数 4：正指数
                             for (let k = 0; k < token.attr_val.length; ++k) {
-                                if (token.attr_val[k] === '.') {
-                                    num_type = 2
+
+                                if (isLetter(token.attr_val[k] && token.attr_val[k + 1] === '-')) {
+                                    num_type = 3
                                     break
                                 }
                                 if (isLetter(token.attr_val[k])) {
-                                    num_type = 3
+                                    num_type = 4
+                                    break
+                                }
+                                if (token.attr_val[k] === '.') {//放最后以防底数有小数点
+                                    num_type = 2
                                     break
                                 }
                             }
@@ -272,10 +283,160 @@ export function lexicalAnalyzer(input) {
                             else {
                                 token.token_type = 'realnum'
                                 if (num_type === 2) {
+                                    let num_val = 0
+                                    // let intpart = 0
+                                    // let floatpart = 0
+                                    let front_val = []
+                                    let back_val = []
+                                    let t = 0
+                                    for (; token.attr_val[t] != '.'; ++t) {
+                                        front_val.push(parseInt(token.attr_val[t]))
+                                    }
+                                    ++t//越过小数点
+                                    for (; t < token.attr_val.length; ++t) {
+                                        back_val.push(parseInt(token.attr_val[t]))
+                                    }
+                                    for (let m = 0; m < front_val.length; ++m) {//整数部分求和
+                                        num_val += front_val[m] * Math.pow(10, front_val.length - 1 - m)
+                                    }
+                                    for (let m = 0; m < back_val.length; ++m) {//小数部分求和
+                                        num_val += back_val[m] * Math.pow(10, -(back_val.length - m))
+                                    }
+                                    token.attr_val = num_val
+                                    if (token.attr_val > Math.pow(2, 31)) {
+                                        // TODO
+                                        console.log("real out of range")
+                                        token.token_type = "error"
+                                    }
 
                                 }
                                 else if (num_type === 3) {
 
+                                    let num_val = 0
+                                    let basenum = 0
+                                    let expnum = 0
+                                    let front_val = []
+                                    let back_val = []
+                                    let first_val = []//底数整数部分
+                                    let second_val = []//底数小数部分
+                                    let last_val = []//指数
+                                    let t = 0
+                                    let isFloat = false
+                                    for (let u = 0; u < token.attr_val; ++u) {
+                                        if (token.attr_val[u] === '.') { isFloat = true }
+                                    }
+                                    //分情况，无小数点：
+
+                                    if (isFloat === false) {
+                                        for (; token.attr_val[t] != 'E' && token.attr_val[t] != 'e'; ++t) {
+                                            front_val.push(parseInt(token.attr_val[t]))
+                                        }
+                                        for (; token.attr_val[t] === 'E' || token.attr_val[t] === 'e' || token.attr_val[t] === '+'; ++t) { }//越过E+
+                                        for (; t < token.attr_val.length; ++t) {
+                                            back_val.push(parseInt(token.attr_val[t]))
+                                        }
+                                        for (let m = 0; m < front_val.length; ++m) {//底数部分求和
+                                            basenum += front_val[m] * Math.pow(10, front_val.length - 1 - m)
+                                        }
+                                        for (let m = 0; m < front_val.length; ++m) {//指数部分求和
+                                            expnum += back_val[m] * Math.pow(10, front_val.length - 1 - m)
+                                        }
+                                        num_val = basenum * Math.pow(10, expnum)
+                                        token.attr_val = num_val
+                                    }
+                                    else {
+                                        for (; token.attr_val[t] != '.'; ++t) {
+                                            first_val.push(parseInt(token.attr_val[t]))
+                                        }
+                                        ++t
+                                        for (; token.attr_val[t] != 'E' && token.attr_val[t] != 'e'; ++t) {
+                                            second_val.push(parseInt(token.attr_val[t]))
+                                        }
+                                        for (; token.attr_val[t] === 'E' || token.attr_val[t] === 'e' || token.attr_val[t] === '-'; ++t) { }//越过E-
+                                        for (; t < token.attr_val.length; ++t) {
+                                            last_val.push(parseInt(token.attr_val[t]))
+                                        }
+                                        for (let m = 0; m < first_val.length; ++m) {//底数整数部分求和
+                                            basenum += first_val[m] * Math.pow(10, first_val.length - 1 - m)
+                                        }
+                                        for (let m = 0; m < second_val.length; ++m) {//小数部分求和
+                                            basenum += second_val[m] * Math.pow(10, -(second_val.length - m))
+                                        }
+                                        for (let m = 0; m < last_val.length; ++m) {//指数部分求和
+                                            expnum += last_val[m] * Math.pow(10, last_val.length - 1 - m)
+                                        }
+                                        num_val = basenum * Math.pow(10, -expnum)
+                                        token.attr_val = num_val
+                                    }
+                                    if (token.attr_val > Math.pow(2, 31)) {
+                                        // TODO
+                                        console.log("real out of range")
+                                        token.token_type = "error"
+                                    }
+
+                                }
+                                else if (num_type === 4) {
+                                    let num_val = 0
+                                    let basenum = 0
+                                    let expnum = 0
+                                    let front_val = []
+                                    let back_val = []
+                                    let first_val = []//底数整数部分
+                                    let second_val = []//底数小数部分
+                                    let last_val = []//指数
+                                    let t = 0
+                                    let isFloat = false
+                                    for (let u = 0; u < token.attr_val; ++u) {
+                                        if (token.attr_val[u] === '.') { isFloat = true }
+                                    }
+                                    //分情况，无小数点：
+
+                                    if (isFloat === false) {
+                                        for (; token.attr_val[t] != 'E' && token.attr_val[t] != 'e'; ++t) {
+                                            front_val.push(parseInt(token.attr_val[t]))
+                                        }
+                                        for (; token.attr_val[t] === 'E' || token.attr_val[t] === 'e' || token.attr_val[t] === '+'; ++t) { }//越过E+
+                                        for (; t < token.attr_val.length; ++t) {
+                                            back_val.push(parseInt(token.attr_val[t]))
+                                        }
+                                        for (let m = 0; m < front_val.length; ++m) {//底数部分求和
+                                            basenum += front_val[m] * Math.pow(10, front_val.length - 1 - m)
+                                        }
+                                        for (let m = 0; m < front_val.length; ++m) {//指数部分求和
+                                            expnum += back_val[m] * Math.pow(10, front_val.length - 1 - m)
+                                        }
+                                        num_val = basenum * Math.pow(10, expnum)
+                                        token.attr_val = num_val
+                                    }
+                                    else {
+                                        for (; token.attr_val[t] != '.'; ++t) {
+                                            first_val.push(parseInt(token.attr_val[t]))
+                                        }
+                                        ++t
+                                        for (; token.attr_val[t] != 'E' && token.attr_val[t] != 'e'; ++t) {
+                                            second_val.push(parseInt(token.attr_val[t]))
+                                        }
+                                        for (; token.attr_val[t] === 'E' || token.attr_val[t] === 'e' || token.attr_val[t] === '+'; ++t) { }//越过E+
+                                        for (; t < token.attr_val.length; ++t) {
+                                            last_val.push(parseInt(token.attr_val[t]))
+                                        }
+                                        for (let m = 0; m < first_val.length; ++m) {//底数整数部分求和
+                                            basenum += first_val[m] * Math.pow(10, first_val.length - 1 - m)
+                                        }
+                                        for (let m = 0; m < second_val.length; ++m) {//小数部分求和
+                                            basenum += second_val[m] * Math.pow(10, -(second_val.length - m))
+                                        }
+                                        for (let m = 0; m < last_val.length; ++m) {//指数部分求和
+                                            expnum += last_val[m] * Math.pow(10, last_val.length - 1 - m)
+                                        }
+                                        num_val = basenum * Math.pow(10, expnum)
+                                        token.attr_val = num_val
+                                    }
+                                    if (token.attr_val > Math.pow(2, 31)) {
+                                        // TODO
+                                        console.log("real out of range")
+                                        token.token_type = "error"
+                                    }
                                 }
                             }
                         }

@@ -237,7 +237,12 @@ function getSimexpr(children) {
         let node = children[0]
         let token = node.val
         if (node.type === TERMINAL) {
-            sem.val = results[results.length - 1][token.attr_val]
+            if(token.token_type === 'identifiers') {
+                sem.val = results[results.length - 1][token.attr_val]
+            }
+            else {
+                sem.val = token.attr_val
+            }
         } else {
             sem.val = token.attr_val
         }
