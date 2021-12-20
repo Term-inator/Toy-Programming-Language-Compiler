@@ -8,7 +8,8 @@ const store = new Vuex.Store({
         code: "int a = 1; int b = 2; real c = 3.0 ;\n{\n\ta = a + 1 ;\n\tb = b * a ;\n\tif ( a < b ) \n\tthen c = c / 2 ;\n\telse c = c / 4 ;\n}",
         lex_attrs: [],
         syntax_ast: null,
-        errors: []
+        errors: [],
+        result: {}
     },
     mutations: {
         setCode(state, code) {
@@ -30,6 +31,9 @@ const store = new Vuex.Store({
         },
         resetErrors(state) {
             state.errors = []
+        },
+        setResult(state, result) {
+            state.result = result
         }
     },
     actions: {},

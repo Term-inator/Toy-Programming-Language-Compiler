@@ -1,4 +1,5 @@
 import {getProductionRule, getAnalyzeTable} from '../api/syntax'
+import {Error} from './error'
 import {trim, update,calculate} from './utils'
 import $ from 'jquery'
 
@@ -406,6 +407,7 @@ function parseCommand(command) {  // s1 r2 etc.
 
 export function syntaxAnalyzer(input) {
     clearResult()
+    let errors = [] // 错误集
 
     let node_stack = []
 
@@ -481,7 +483,6 @@ export function syntaxAnalyzer(input) {
                     break
                 case 'boolop':
                     break
-                    return null
                 case 'arithexpr':
                     console.log('al2_arith_0')
                     sem =  alOperate2(children).sem
@@ -509,27 +510,41 @@ export function syntaxAnalyzer(input) {
             symbol_stack.push(production_rule.left)
             let node = new Node(N_TERMINAL, production_rule, children)
             node.sem = sem
-            console.log(node.sem)
             node_stack.push(node)
             --i // 规约不压输入字符进栈
         } else if (command.op === 'e') {
-            // TODO
-            console.log('err')
+            if(token !== END) {
+                errors.push(new Error("unexpected symbol " + token.attr_val, token.line_num, token.line_pos))
+            }
             continue
         } else if (command.op === 'acc') {
             if (i === input.length - 1) {
                 console.log('acc')
-                return node_stack[0]
+                return {
+                    ast: node_stack[0],
+                    result: ultimate_result,
+                    errors: errors
+                }
             } else {
                 // TODO
                 console.log('fail')
-                return
+                return {
+                    ast: null,
+                    errors: errors
+                }
             }
         }
         if (empty(state_stack, symbol_stack) && i === input.length - 1) {
             // TODO
             console.log('fail')
-            return
+            return {
+                ast: null,
+                errors: errors
+            }
         }
+    }
+    return {
+        ast: null,
+        errors: errors
     }
 }

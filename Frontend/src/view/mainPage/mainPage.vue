@@ -63,8 +63,9 @@ export default {
                 return
             }
             let res = null
-            let errors = null
+            let errors = []
             this.$store.commit('resetErrors')
+            this.log_string = ""
             this.$store.commit('setCode', this.code)
             res = lexicalAnalyzer(this.code)
             let lex_attrs = res.tokens
@@ -76,15 +77,38 @@ export default {
                 return
             }
 
-            let syntax_ast = syntaxAnalyzer($.extend([], lex_attrs))
-            this.$store.commit('setSyntaxAst', syntax_ast)
-            console.log(syntax_ast)
+            res = syntaxAnalyzer($.extend([], lex_attrs))
+            let syntax_ast = res.ast
+            if(syntax_ast !== null) { // succeed
+                this.$store.commit('setSyntaxAst', syntax_ast)
+                let result = res.result
+                this.$store.commit('setResult', result)
+                this.showResult()
+            }
+            else {
+                // fail
+            }
+            errors = res.errors
+            if(errors.length !== 0) {
+                this.$store.commit('addErrors', errors)
+                this.showError()
+                return
+            }
+        },
+        showResult() {
+            let result = this.$store.state.result
+            let res = ""
+            for(let k in result) {
+                res += (k + ' : ' + result[k] + '\n')
+            }
+            console.log(res)
         },
         showError() {
-            this.log_string = ""
+            let log = ""
             this.$store.state.errors.forEach((error) => {
-                this.log_string += error.toString() + '\n'
+                log += error.toString() + '\n'
             })
+            this.log_string = log
         }
     }
 }
