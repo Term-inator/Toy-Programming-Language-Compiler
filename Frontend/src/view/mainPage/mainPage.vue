@@ -4,15 +4,26 @@
             <Row type='flex' justify='space-around' style='padding: 4vh 0 0 0'>
                 <Col span='14'>
                     <Row>
-                        <Input id='work-space' v-model='code' type='textarea' :rows='17' placeholder='Enter your code...' />
+                        <Button type='success' size='large' @click='commitCode'>提交</Button>
                     </Row>
                     <br>
                     <Row>
-                        <Button type='success' size='large' @click='commitCode'>提交</Button>
-                    </Row>
+                        <Input id='work-space' v-model='code' type='textarea' :rows='16' placeholder='Enter your code...' />
+                    </Row>  
                 </Col>
                 <Col span='8'>
-                    <Input id='log-space' v-model='log_string' type='textarea' :rows='17' readonly />
+                    <Tabs value="res">
+                        <TabPane :label="res" name="res">
+                            <div style="height: 80vh;">
+                                <Input id='res-space' v-model='res_string' type='textarea' :rows='16' readonly />
+                            </div>
+                        </TabPane>
+                        <TabPane :label="err" name="err">
+                            <div style="height: 80vh;">
+                                <Input id='err-space' v-model='err_string' type='textarea' :rows='16' readonly />
+                            </div>
+                        </TabPane>
+                    </Tabs>
                 </Col>
             </Row>
         </div>
@@ -32,7 +43,23 @@ export default {
     data() {
         return {
             code: "int a = 1; int b = 2; real c = 3.0 ;\n{\n\ta = a + 1 ;\n\tb = b * a ;\n\tif ( a < b ) \n\tthen c = c / 2 ;\n\telse c = c / 4 ;\n}",
-            log_string: ""
+            res_string: "",
+            err_string: "",
+            res: (h) => {
+                    return h('div', [
+                        h('span', '结果')
+                    ])
+                },
+            err: (h) => {
+                return h('div', [
+                    h('span', '报错'),
+                    h('Badge', {
+                        props: {
+                            count: this.$store.state.errors.length
+                        }
+                    })
+                ])
+            }
         }
     },
     mounted() {
@@ -52,6 +79,7 @@ export default {
                 this.setSelectionRange(start + indent.length, start + selected.length)
             }
         })
+        this.showResult()
         this.showError()
         getLRProductionRule()
         getLRAnalyzeTable()
@@ -64,8 +92,10 @@ export default {
             }
             let res = null
             let errors = []
+            this.$store.commit('setSyntaxAst', null)
             this.$store.commit('resetErrors')
-            this.log_string = ""
+            this.res_string = ""
+            this.err_string = ""
             this.$store.commit('setCode', this.code)
             res = lexicalAnalyzer(this.code)
             let lex_attrs = res.tokens
@@ -74,19 +104,27 @@ export default {
             if(errors.length !== 0) {
                 this.$store.commit('addErrors', errors)
                 this.showError()
+                this.$Notice.error({
+                    title: '编译失败',
+                });
                 return
             }
 
             res = syntaxAnalyzer($.extend([], lex_attrs))
             let syntax_ast = res.ast
             if(syntax_ast !== null) { // succeed
+                this.$Notice.success({
+                    title: '编译成功',
+                })
                 this.$store.commit('setSyntaxAst', syntax_ast)
                 let result = res.result
                 this.$store.commit('setResult', result)
                 this.showResult()
             }
             else {
-                // fail
+                this.$Notice.error({
+                    title: '编译失败',
+                })
             }
             errors = res.errors
             if(errors.length !== 0) {
@@ -101,14 +139,14 @@ export default {
             for(let k in result) {
                 res += (k + ' : ' + result[k] + '\n')
             }
-            console.log(res)
+            this.res_string = res
         },
         showError() {
-            let log = ""
+            let err = ""
             this.$store.state.errors.forEach((error) => {
-                log += error.toString() + '\n'
+                err += error.toString() + '\n'
             })
-            this.log_string = log
+            this.err_string = err
         }
     }
 }
@@ -119,11 +157,17 @@ export default {
 
 .mainpage {
     min-height: 88vh;
-    padding: 8vh 0 10vh 0;
+    padding: 8vh 0 0vh 0;
 }
 
-#work-space /deep/ .ivu-input, #log-space /deep/ .ivu-input {
+#work-space /deep/ .ivu-input, #res-space /deep/ .ivu-input {
     font-size: 3vh;
     resize: none;
+}
+
+#err-space /deep/ .ivu-input {
+    font-size: 3vh;
+    resize: none;
+    color: red;
 }
 </style>
