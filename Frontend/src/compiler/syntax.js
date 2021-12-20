@@ -412,11 +412,12 @@ export function syntaxAnalyzer(input) {
         let state_top = top(state_stack)
         let command = analyze_table[state_top][tokenToTerminal(token)]
         command = parseCommand(command)
-        // console.log(command)
+        
         if (command.op === 's') {
             state_stack.push(Number(command.dst))
             symbol_stack.push(token)
             node_stack.push(new Node(TERMINAL, token, null))
+            // semantic
             if(token.attr_val === '{') {
                 let result_top = $.extend({}, top(results))
                 results.push(result_top)
@@ -428,7 +429,6 @@ export function syntaxAnalyzer(input) {
         } else if (command.op === 'r') {
             let production_rule = production_rules[command.production_rule_id]
             let children = []
-            // console.log(production_rule)
             for (let j = 0; j < production_rule.right.length; ++j) {
                 if (production_rule.right[j] !== EPS) { // 空产生式不弹栈
                     state_stack.pop()
@@ -436,7 +436,7 @@ export function syntaxAnalyzer(input) {
                     children.unshift(node_stack.pop())
                 }
             }
-            // console.log(production_rule.left, children)
+            // semantic
             let sem = null
             switch (production_rule.left) {
                 case 'program':
@@ -479,7 +479,6 @@ export function syntaxAnalyzer(input) {
                 case 'arithexpr':
                     console.log('al2_arith_0')
                     sem =  alOperate2(children).sem
-                    // console.log(sem)
                     console.log('al2_arith')
                     break
                 case 'arithexprprime':
@@ -498,7 +497,6 @@ export function syntaxAnalyzer(input) {
                 case 'simpleexpr':
                     sem = getSimexpr(children)
                     console.log('getsim')
-                    // console.log(sem)
                     break
             }
             state_stack.push(Number(analyze_table[top(state_stack)][production_rule.left]))
@@ -510,8 +508,8 @@ export function syntaxAnalyzer(input) {
             --i // 规约不压输入字符进栈
         } else if (command.op === 'e') {
             // TODO
-            console.log('fail')
-            return
+            console.log('err')
+            continue
         } else if (command.op === 'acc') {
             if (i === input.length - 1) {
                 console.log('acc')
