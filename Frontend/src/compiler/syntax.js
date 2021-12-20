@@ -1,5 +1,6 @@
 import {getProductionRule, getAnalyzeTable} from '../api/syntax'
 import {trim, update,calculate} from './utils'
+import $ from 'jquery'
 
 const EPS = ''
 const END = '$'
@@ -387,6 +388,14 @@ export function syntaxAnalyzer(input) {
             state_stack.push(Number(command.dst))
             symbol_stack.push(token)
             node_stack.push(new Node(TERMINAL, token, null))
+            if(token.attr_val === '{') {
+                let top = $.extend({}, results[results.length - 1])
+                results.push(top)
+                num_of_if.push(0)
+            }
+            if(token.attr_val === 'if') {
+                ++num_of_if[num_of_if.length - 1]
+            }
         } else if (command.op === 'r') {
             let production_rule = production_rules[command.production_rule_id]
             let children = []
