@@ -1,5 +1,5 @@
 import {getProductionRule, getAnalyzeTable} from '../api/syntax'
-import {trim, update} from './utils'
+import {trim, update,calculate} from './utils'
 
 const EPS = ''
 const END = '$'
@@ -110,6 +110,8 @@ class Node {
 let results = [{}]
 let ultimate_result = {}
 let num_of_if = []
+let operator_list = []
+let num_list = []
 
 /**
  * 进行decl ->real|int规约时调用
@@ -117,7 +119,7 @@ let num_of_if = []
  * @param {number} value 词法分析的digit值
  */
 function declare(children) {
-    console.log(children)
+    // console.log(children)
     let name = children[1]
     let value = children[3]
     results[results.length - 1][name.val.attr_val] = value.val.attr_val
@@ -133,36 +135,62 @@ function declare(children) {
  * @param {str} operate
  * @param {list} nodelist
  */
-function alOperate1(operate, nodelist) {
-    let r = new Node()
-    r.operator = operate
-    value = 0
+function alOperate1(children) {
+    if(children.length !== 0) {
+        // console.log(children)
+        operator_list.push(children[0].val.attr_val)
+        num_list.push(children[1].sem.val)
+        // console.log(children[1].sem.val)
+    }
 }
 
 /**
  * arithexpr -> multexpr arithexprprime
  * multexpr -> simpleexpr multexprprime
- * @param {list} nodelist
+ * @param {list} children
  */
-function alOperate2(nodelist) {
+function alOperate2(children) {
+    let sim = children[0].sem.val
+    // console.log(sim)
+    console.log(num_list)
+    console.log(operator_list)
+    while(num_list.length !== 0){
+        sim = calculate(sim,num_list.pop(),operator_list.pop())
+    }
+    let r = new Node()
+    r.sem.val = sim
+    // console.log(r.sem.val)
+    return r
+}
 
+/**
+ * assgstmt -> ID = arithexpr
+ */
+function assgOperate(children) {
+    let r = new Node()
+    r.sem.kv[children[0].val.attr_val] = children[2].sem.val
+    console.log(r.sem.kv)
+    return r
 }
 
 /**
  * 分支语句处理
  * ifstmt -> if ( boolexpr ) then stmt else stmt规约时调用
- * @param {list} nodelist
+ * @param {list} children
  * @returns Node
  */
-function ifOperate(nodelist) {
-    let r = new Node()
-    let [node1, node2, node3] = nodelist
-    if (node1.bool) {
+function ifOperate(children) {
+    let r = null
+    let node1 = children[2]
+    let node2 = children[5]
+    let node3 = children[7]
+    if (node1.sem.bool) {
         r = node2
     } else {
         r = node3
     }
     --num_of_if[num_of_if.length - 1]
+    console.log(r.sem.kv)
     return r
 }
 
@@ -171,28 +199,25 @@ function ifOperate(nodelist) {
  * @param {str} bool
  * @param {list} nodelist
  */
-function boolOperate(bool, nodelist) {
+function boolOperate(children) {
     let node = new Node()
-    let [node1, node2] = nodelist
+    let node1 = children[0]
+    let node2 = children[2]
+    let bool = children[1].val.right[0]
     if (bool === '>') {
-        node.bool = (node1.val > node2.val)
+        node.sem.bool = (node1.val > node2.val)
     } else if (bool === '<') {
-        node.bool = (node1.val < node2.val)
+        node.sem.bool = (node1.val < node2.val)
     } else if (bool === '<=') {
-        node.bool = (node1.val <= node2.val)
+        node.sem.bool = (node1.val <= node2.val)
     } else if (bool === '>=') {
-        node.bool = (node1.val >= node2.val)
+        node.sem.bool = (node1.val >= node2.val)
     } else {
-        node.bool = (node1.val === node2.val)
+        node.sem.bool = (node1.val === node2.val)
     }
     return node
 }
 
-function assgOperate(node) {
-    let r = new Node()
-    r.kv['name'] = node.val
-    return r
-}
 
 /**
  * simpleexpr -> INTNUM
@@ -204,7 +229,7 @@ function getSimexpr(children) {
     let sem = {
         val: 0,
         operator: '',
-        bool: true,
+        bool: '',
         kv: {}
     }
     if (children.length === 1) {
@@ -218,21 +243,28 @@ function getSimexpr(children) {
     } else {
         sem.val = children[1].sem.val
     }
+    // console.log(sem.val)
     return sem
 }
 
 /**
  * stmts -> stmt stmts
- * @param {list} nodelist
+ * @param {list} children
  * @returns Node
  */
-function getStmts(nodelist) {
+function getStmts(children) {
     let temp = {}
-    nodelist.forEach((node) => {
-        temp.update(node.kv) // TODO ?
-    })
+    for (let i in children){
+        console.log(i)
+        // console.log(children[0].val.right[0])
+        if (children[i].val.right[0] !== 'EPS'){
+            update(temp,children[i].sem.kv)
+        }
+
+    }
     let r = new Node()
-    r.kv = temp
+    r.sem.kv = temp
+    console.log(r.sem.kv)
     return r
 }
 
@@ -241,9 +273,11 @@ function getStmts(nodelist) {
  * @param {Node} node
  * @returns Node
  */
-function doCompoundstmt(node) {
+function doCompoundstmt(children) {
+    let node = children[1]
     results.pop()
     num_of_if.pop()
+    console.log(children[1].sem.kv)
     return node
 }
 
@@ -259,6 +293,7 @@ function doStmt(children) {
     if (num_of_if[num_of_if.length - 1] === 0) {
         results[results.length - 1]=update(results[results.length - 1],node.sem.kv) // TODO ?
     }
+    console.log(node.sem.kv)
     return node
 }
 
@@ -270,7 +305,9 @@ function doStmt(children) {
  */
 function getResult(children) {
     let r = results.pop()
+    console.log(r)
     let t = children[1]
+    console.log(t.sem.kv)
     r = update(r, t.sem.kv)
     return r
 }
@@ -353,7 +390,6 @@ export function syntaxAnalyzer(input) {
         } else if (command.op === 'r') {
             let production_rule = production_rules[command.production_rule_id]
             let children = []
-            let sem = null
             // console.log(production_rule)
             for (let j = 0; j < production_rule.right.length; ++j) {
                 if (production_rule.right[j] !== EPS) { // 空产生式不弹栈
@@ -362,7 +398,8 @@ export function syntaxAnalyzer(input) {
                     children.unshift(node_stack.pop())
                 }
             }
-            console.log(production_rule.left, children)
+            // console.log(production_rule.left, children)
+            let sem = null
             switch (production_rule.left) {
                 case 'program':
                     ultimate_result = getResult(children)
@@ -375,46 +412,62 @@ export function syntaxAnalyzer(input) {
                     console.log(results[0])
                     break
                 case 'stmt':
+                    sem = doStmt(children).sem
+                    console.log('dostmt')
                     break
-                    return doStmt(node.list[0])
                 case 'compoundstmt':
+                    sem = doCompoundstmt(children).sem
+                    console.log('getcompoundstmt')
                     break
-                    return doCompoundstmt(node.list[0])
                 case 'stmts':
+                    sem = getStmts(children).sem
+                    console.log('getstmts')
                     break
-                    return getStmts(node.list)
                 case 'ifstmt':
+                    sem = ifOperate(children).sem
+                    console.log('ifo')
                     break
-                    return ifOperate(node.list)
                 case 'assgstmt':
+                    sem = assgOperate(children).sem
+                    console.log('assgstmt')
                     break
-                    return assgOperate(node.list[0])
                 case 'boolexpr':
+                    sem = boolOperate(children).sem
+                    console.log('bool')
                     break
-                    return boolOperate(node.bool, node.list)
                 case 'boolop':
                     break
                     return null
                 case 'arithexpr':
+                    console.log('al2_arith_0')
+                    sem =  alOperate2(children).sem
+                    // console.log(sem)
+                    console.log('al2_arith')
                     break
-                    return alOperate2(node.list)
                 case 'arithexprprime':
+                    alOperate1(children)
+                    console.log('al1_arith')
                     break
-                    return alOperate1(production_rule.right[0], node.list)
                 case 'multexpr':
+                    console.log('alt2mult_0')
+                    sem = alOperate2(children).sem
+                    console.log('al2mult')
                     break
-                    return alOperate2(node.list)
                 case 'multexprprime':
+                    alOperate1(children)
+                    console.log('al1mult')
                     break
-                    return alOperate1(production_rule.right[0], node.list)
                 case 'simpleexpr':
                     sem = getSimexpr(children)
+                    console.log('getsim')
+                    // console.log(sem)
                     break
             }
             state_stack.push(Number(analyze_table[top(state_stack)][production_rule.left]))
             symbol_stack.push(production_rule.left)
             let node = new Node(N_TERMINAL, production_rule, children)
             node.sem = sem
+            console.log(node.sem)
             node_stack.push(node)
             --i // 规约不压输入字符进栈
         } else if (command.op === 'e') {

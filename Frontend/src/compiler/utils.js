@@ -18,4 +18,16 @@ function update(map1, map2) {
     return map1
 }
 
-export {trim, leftTrim, rightTrim, update}
+function calculate(num1,num2,operator){
+    let r = 0
+    if (operator === '+')
+        return r = num1 + num2
+    else if(operator === '-')
+        return r = num1 - num2
+    else if(operator === '*')
+        return r = num1 * num2
+    else if (operator === '/')
+        return r = num1 / num2
+}
+
+export {trim, leftTrim, rightTrim, update,calculate}
