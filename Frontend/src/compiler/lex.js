@@ -224,7 +224,7 @@ export function lexicalAnalyzer(input) {
         //非法字符,报错后读下一个
         if (isLetter(c) === false && isBound(c) === false && isDigit(c) === false && isDivi(c) === false && isOp1(c) === false && isOp2(c) === false && isIgnore(c) === false && c !== '.') {
             let wrongtoken = new LexAttr("error", c, line_num, line_pos)
-            errors.push(new Error("unexpected token " + c, line_num, line_pos))
+            errors.push(new Error("unexpected token " + c, line_num, line_pos - 1))
             tokens.push(wrongtoken)
             ++line_pos
             pre_index = now_index
@@ -244,7 +244,7 @@ export function lexicalAnalyzer(input) {
                 if (state.id === current_state_id) {
                     let token_val = input.substring(pre_index + 1, now_index + 1)
                     if (state.token_type === "error") {
-                            errors.push(new Error("unexpected token" + token_val, line_num, line_pos))
+                            errors.push(new Error("unexpected token" + token_val, line_num, line_pos - token_val.length))
                     }
                     else if (state.token_type !== "ignore") {
                         let token = new LexAttr(state.token_type, token_val, line_num, line_pos - token_val.length)
@@ -271,7 +271,7 @@ export function lexicalAnalyzer(input) {
                                 token.token_type = 'intnum'
                                 token.attr_val = Number(token.attr_val)
                                 if (token.attr_val >= Math.pow(2, 31)) {
-                                    errors.push(new Error("int " + token.attr_val + " out of range", line_num, line_pos))
+                                    errors.push(new Error("int " + token.attr_val + " out of range", line_num, line_pos - token_val.length))
                                     token.token_type = "error"
                                 }
                             }
@@ -280,7 +280,7 @@ export function lexicalAnalyzer(input) {
                                 if (num_type === 2) {
                                     token.attr_val = Number(token.attr_val)
                                     if (token.attr_val >= Math.pow(10, 129)) {
-                                        errors.push(new Error("real " + token.attr_val + " out of range", line_num, line_pos))
+                                        errors.push(new Error("real " + token.attr_val + " out of range", line_num, line_pos - token_val.length))
                                         token.token_type = "error"
                                     }
 
@@ -292,7 +292,7 @@ export function lexicalAnalyzer(input) {
                                     token.attr_val = base_num * Math.pow(10, -exp_num)
                                     if (exp_num > 128) {
                                         // TODO
-                                        errors.push(new Error("real " + token.attr_val + " out of range", line_num, line_pos))
+                                        errors.push(new Error("real " + token.attr_val + " out of range", line_num, line_pos - token_val.length))
                                         token.token_type = "error"
                                     }
 
@@ -310,7 +310,7 @@ export function lexicalAnalyzer(input) {
                                     token.attr_val = base_num * Math.pow(10, exp_num)
                                     if (exp_num > 128) {
                                         // TODO
-                                        errors.push(new Error("real " + token.attr_val + " out of range", line_num, line_pos))
+                                        errors.push(new Error("real " + token.attr_val + " out of range", line_num, line_pos - token_val.length))
                                         token.token_type = "error"
                                     }
                                 }
