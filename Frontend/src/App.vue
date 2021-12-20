@@ -5,7 +5,7 @@
             <div slot="item-text">工作区</div>
         </navBarItem>
         <navBarItem name="tokenpage">
-            <div slot="item-text">符号表</div>
+            <div slot="item-text">Token表</div>
         </navBarItem>
         <navBarItem name="astPage">
             <div slot="item-text">语法树</div>

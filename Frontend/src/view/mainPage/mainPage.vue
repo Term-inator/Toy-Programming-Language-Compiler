@@ -52,6 +52,7 @@ export default {
                 this.setSelectionRange(start + indent.length, start + selected.length)
             }
         })
+        this.showError()
         getLRProductionRule()
         getLRAnalyzeTable()
     },
@@ -61,12 +62,29 @@ export default {
                 // TODO 空处理
                 return
             }
+            let res = null
+            let errors = null
+            this.$store.commit('resetErrors')
             this.$store.commit('setCode', this.code)
-            let lex_attrs = lexicalAnalyzer(this.code)
+            res = lexicalAnalyzer(this.code)
+            let lex_attrs = res.tokens
             this.$store.commit('setLexAttrs', lex_attrs)
+            errors = res.errors
+            if(errors.length !== 0) {
+                this.$store.commit('addErrors', errors)
+                this.showError()
+                return
+            }
+
             let syntax_ast = syntaxAnalyzer($.extend([], lex_attrs))
             this.$store.commit('setSyntaxAst', syntax_ast)
             console.log(syntax_ast)
+        },
+        showError() {
+            this.log_string = ""
+            this.$store.state.errors.forEach((error) => {
+                this.log_string += error.toString() + '\n'
+            })
         }
     }
 }
