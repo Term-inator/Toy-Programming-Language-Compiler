@@ -74,6 +74,9 @@ export function getLRProductionRule() {
         }).catch(() => {
         })
     }
+    else {
+        return production_rules
+    }
 }
 
 export function getLRAnalyzeTable() {
@@ -83,6 +86,9 @@ export function getLRAnalyzeTable() {
             // console.log(analyze_table)
         }).catch(() => {
         })
+    }
+    else {
+        return analyze_table
     }
 }
 

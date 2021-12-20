@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 
 const main_page = () => import('@/view/mainPage/mainPage')
+const token_page = () => import('@/view/tokenPage/tokenPage')
 const ast_page = () => import('@/view/astPage/astPage')
 
 Vue.use(VueRouter)
@@ -14,6 +15,11 @@ const routes = [
         name: 'mainpage',
         path: '/mainpage',
         component: main_page
+    },
+    {
+        name: 'tokenpage',
+        path: '/tokenpage',
+        component: token_page
     },
     {
         name: 'astPage',

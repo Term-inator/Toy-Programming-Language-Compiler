@@ -4,13 +4,13 @@
         <navBarItem name="mainpage">
             <div slot="item-text">工作区</div>
         </navBarItem>
+        <navBarItem name="tokenpage">
+            <div slot="item-text">符号表</div>
+        </navBarItem>
         <navBarItem name="astPage">
             <div slot="item-text">语法树</div>
         </navBarItem>
-        <!-- <navBarItem>
-            <div slot="item-text"></div>
-        </navBarItem>
-        <navBarItem></navBarItem>
+        <!-- navBarItem></navBarItem>
         <navBarItem></navBarItem>
         <navBarItem></navBarItem>
         <navBarItem></navBarItem> -->

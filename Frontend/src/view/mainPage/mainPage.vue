@@ -12,7 +12,7 @@
                     </Row>
                 </Col>
                 <Col span='8'>
-                    <Input id='log-space' v-model='lex_string' type='textarea' :rows='17' readonly />
+                    <Input id='log-space' v-model='log_string' type='textarea' :rows='17' readonly />
                 </Col>
             </Row>
         </div>
@@ -32,12 +32,12 @@ export default {
     data() {
         return {
             code: "int a = 1; int b = 2; real c = 3.0 ;\n{\n\ta = a + 1 ;\n\tb = b * a ;\n\tif ( a < b ) \n\tthen c = c / 2 ;\n\telse c = c / 4 ;\n}",
-            lex_string: ""
+            log_string: ""
         }
     },
     mounted() {
         this.code = this.$store.state.code
-        this.code = "real a = 3e3; {}"
+        // this.code = "real a = 3e3; {}"
         //textarea支持tab缩进
         $('textarea').on('keydown', function(e) {
             let tab_keycode = 9
@@ -64,17 +64,9 @@ export default {
             this.$store.commit('setCode', this.code)
             let lex_attrs = lexicalAnalyzer(this.code)
             this.$store.commit('setLexAttrs', lex_attrs)
-            this.showLexAttrs()
             let syntax_ast = syntaxAnalyzer($.extend([], lex_attrs))
             this.$store.commit('setSyntaxAst', syntax_ast)
             console.log(syntax_ast)
-        },
-        showLexAttrs() {
-            let res = ""
-            this.$store.state.lex_attrs.forEach(lex_attr => {
-                res += lex_attr.toString() + '\n'
-            })
-            this.lex_string = res
         }
     }
 }
