@@ -30,4 +30,4 @@ function calculate(num1,num2,operator){
         return r = num1 / num2
 }
 
-export {trim, leftTrim, rightTrim, update,calculate}
+export {trim, leftTrim, rightTrim, update, calculate}

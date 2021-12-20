@@ -92,10 +92,13 @@ export default {
             }
             let res = null
             let errors = []
+            // 重置store
             this.$store.commit('setSyntaxAst', null)
+            this.$store.commit('setResult', {})
             this.$store.commit('resetErrors')
             this.res_string = ""
             this.err_string = ""
+            
             this.$store.commit('setCode', this.code)
             res = lexicalAnalyzer(this.code)
             let lex_attrs = res.tokens

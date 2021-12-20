@@ -1,6 +1,6 @@
 import {getProductionRule, getAnalyzeTable} from '../api/syntax'
 import {Error} from './error'
-import {trim, update,calculate} from './utils'
+import {trim, update, calculate} from './utils'
 import $ from 'jquery'
 
 const EPS = ''
@@ -142,6 +142,9 @@ function declare(children) {
     // console.log(children)
     let name = children[1]
     let value = children[3]
+    if(results[results.length - 1].hasOwnProperty(name.val.attr_val)) {
+        return new Error("variable " + name.val.attr_val + " has already been declared", name.val.line_num, name.val.line_pos)
+    }
     results[results.length - 1][name.val.attr_val] = value.val.attr_val
 }
 
@@ -188,7 +191,12 @@ function alOperate2(children) {
  */
 function assgOperate(children) {
     let r = new Node()
-    r.sem.kv[children[0].val.attr_val] = children[2].sem.val
+    if(results[results.length - 1].hasOwnProperty(children[0].val.attr_val)) {
+        r.sem.kv[children[0].val.attr_val] = children[2].sem.val
+    }
+    else {
+        return new Error("variable " + children[0].val.attr_val + " is not defined", children[0].val.line_num, children[0].val.line_pos)
+    }
     console.log(r.sem.kv)
     return r
 }
@@ -265,7 +273,12 @@ function getSimexpr(children) {
         let token = node.val
         if (node.type === TERMINAL) {
             if(token.token_type === 'identifiers') {
-                sem.val = results[results.length - 1][token.attr_val]
+                if(results[results.length - 1].hasOwnProperty(token.attr_val)) {
+                    sem.val = results[results.length - 1][token.attr_val]
+                }
+                else {
+                    return new Error("variable " + token.attr_val + " is not defined", token.line_num, token.line_pos)
+                }
             }
             else {
                 sem.val = token.attr_val
@@ -324,7 +337,7 @@ function doCompoundstmt(children) {
 function doStmt(children) {
     let node = children[0]
     if (num_of_if[num_of_if.length - 1] === 0) {
-        results[results.length - 1]=update(results[results.length - 1],node.sem.kv) // TODO ?
+        results[results.length - 1]=update(results[results.length - 1],node.sem.kv)
     }
     console.log(node.sem.kv)
     return node
@@ -446,6 +459,7 @@ export function syntaxAnalyzer(input) {
             }
             // semantic
             let sem = null
+            let res = null
             switch (production_rule.left) {
                 case 'program':
                     ultimate_result = getResult(children)
@@ -454,7 +468,14 @@ export function syntaxAnalyzer(input) {
                 case 'decls':
                     break
                 case 'decl':
-                    declare(children)
+                    res = declare(children)
+                    if(res !== undefined) {
+                        errors.push(res)
+                        return {
+                            ast: null,
+                            errors: errors
+                        }
+                    }
                     console.log(results[0])
                     break
                 case 'stmt':
@@ -474,7 +495,15 @@ export function syntaxAnalyzer(input) {
                     console.log('ifo')
                     break
                 case 'assgstmt':
-                    sem = assgOperate(children).sem
+                    res = assgOperate(children)
+                    if(res instanceof Error) {
+                        errors.push(res)
+                        return {
+                            ast: null,
+                            errors: errors
+                        }
+                    }
+                    sem = res.sem
                     console.log('assgstmt')
                     break
                 case 'boolexpr':
@@ -503,6 +532,13 @@ export function syntaxAnalyzer(input) {
                     break
                 case 'simpleexpr':
                     sem = getSimexpr(children)
+                    if(sem instanceof Error) {
+                        errors.push(sem)
+                        return {
+                            ast: null,
+                            errors: errors
+                        }
+                    }
                     console.log('getsim')
                     break
             }
