@@ -67,19 +67,23 @@ function setAnalyzeTable(analyze_table_str) {
 }
 
 export function getLRProductionRule() {
-    getProductionRule({}).then(data => {
-        setProductionRules(data.data)
-        console.log(production_rules)
-    }).catch(() => {
-    })
+    if(production_rules.length === 0) {
+        getProductionRule({}).then(data => {
+            setProductionRules(data.data)
+            console.log(production_rules)
+        }).catch(() => {
+        })
+    }
 }
 
 export function getLRAnalyzeTable() {
-    getAnalyzeTable({}).then(data => {
-        setAnalyzeTable(data.data)
-        // console.log(analyze_table)
-    }).catch(() => {
-    })
+    if(analyze_table.length === 0) {
+        getAnalyzeTable({}).then(data => {
+            setAnalyzeTable(data.data)
+            // console.log(analyze_table)
+        }).catch(() => {
+        })
+    }
 }
 
 // AST
@@ -88,7 +92,7 @@ class Node {
         this.type = type // 终结符 val = token : Token; 非终结符 val = production_rule : ProductionRule
         this.val = val
         this.children = children
-        this.sem = {
+        this.sem = { // semantic info
             val: 0,
             operator: '',
             bool: '',
@@ -113,6 +117,14 @@ let ultimate_result = {}
 let num_of_if = []
 let operator_list = []
 let num_list = []
+
+function clearResult() {
+    results = [{}]
+    ultimate_result = {}
+    num_of_if = []
+    operator_list = []
+    num_list = []
+}
 
 /**
  * 进行decl ->real|int规约时调用
@@ -205,17 +217,25 @@ function boolOperate(children) {
     let node1 = children[0]
     let node2 = children[2]
     let bool = children[1].val.right[0]
+    console.log('boolop', node.sem.bool)
     if (bool === '>') {
-        node.sem.bool = (node1.val > node2.val)
+        console.log('boolop>')
+        node.sem.bool = (node1.sem.val > node2.sem.val)
     } else if (bool === '<') {
-        node.sem.bool = (node1.val < node2.val)
+        console.log('boolop<')
+        node.sem.bool = (node1.sem.val < node2.sem.val)
+        // console.log(('boolop', node1.sem.val < node2.sem.val))
     } else if (bool === '<=') {
-        node.sem.bool = (node1.val <= node2.val)
+        console.log('boolop<=')
+        node.sem.bool = (node1.sem.val <= node2.sem.val)
     } else if (bool === '>=') {
-        node.sem.bool = (node1.val >= node2.val)
+        console.log('boolop>=')
+        node.sem.bool = (node1.sem.val >= node2.sem.val)
     } else {
-        node.sem.bool = (node1.val === node2.val)
+        console.log('boolop', bool)
+        node.sem.bool = (node1.sem.val === node2.sem.val)
     }
+    console.log('boolop', node.sem.bool)
     return node
 }
 
@@ -377,6 +397,8 @@ function parseCommand(command) {  // s1 r2 etc.
 }
 
 export function syntaxAnalyzer(input) {
+    clearResult()
+
     let node_stack = []
 
     let state_stack = [0]
@@ -394,8 +416,8 @@ export function syntaxAnalyzer(input) {
             symbol_stack.push(token)
             node_stack.push(new Node(TERMINAL, token, null))
             if(token.attr_val === '{') {
-                let top = $.extend({}, results[results.length - 1])
-                results.push(top)
+                let result_top = $.extend({}, top(results))
+                results.push(result_top)
                 num_of_if.push(0)
             }
             if(token.attr_val === 'if') {

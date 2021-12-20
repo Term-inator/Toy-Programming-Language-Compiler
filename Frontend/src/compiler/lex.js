@@ -274,7 +274,7 @@ export function lexicalAnalyzer(input) {
                                 //     num_val += attr_val * Math.pow(10, token_val.length - i - 1)
                                 //     --i
                                 // }
-                                if (token.attr_val > Math.pow(2, 31)) {
+                                if (token.attr_val >= Math.pow(2, 31)) {
                                     // TODO
                                     console.log("int out of range")
                                     token.token_type = "error"
@@ -303,7 +303,7 @@ export function lexicalAnalyzer(input) {
                                         num_val += back_val[m] * Math.pow(10, -(back_val.length - m))
                                     }
                                     token.attr_val = num_val
-                                    if (token.attr_val > Math.pow(2, 31)) {
+                                    if (token.attr_val >= Math.pow(2, 31)) {
                                         // TODO
                                         console.log("real out of range")
                                         token.token_type = "error"
@@ -368,7 +368,7 @@ export function lexicalAnalyzer(input) {
                                         num_val = basenum * Math.pow(10, -expnum)
                                         token.attr_val = num_val
                                     }
-                                    if (token.attr_val > Math.pow(2, 31)) {
+                                    if (token.attr_val >= Math.pow(2, 31)) {
                                         // TODO
                                         console.log("real out of range")
                                         token.token_type = "error"
