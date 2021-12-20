@@ -279,7 +279,7 @@ export function lexicalAnalyzer(input) {
                                 token.token_type = 'realnum'
                                 if (num_type === 2) {
                                     token.attr_val = Number(token.attr_val)
-                                    if (token.attr_val > 128) {
+                                    if (exp_num > 128) {
                                         errors.push(new Error("real " + token.attr_val + " out of range", line_num, line_pos))
                                         token.token_type = "error"
                                     }
@@ -290,7 +290,7 @@ export function lexicalAnalyzer(input) {
                                     let base_num = Number(token.attr_val.substring(0, e_index))
                                     let exp_num = Number(token.attr_val.substring(e_index + 2))
                                     token.attr_val = base_num * Math.pow(10, -exp_num)
-                                    if (token.attr_val > 128) {
+                                    if (exp_num > 128) {
                                         // TODO
                                         errors.push(new Error("real " + token.attr_val + " out of range", line_num, line_pos))
                                         token.token_type = "error"
@@ -308,7 +308,7 @@ export function lexicalAnalyzer(input) {
                                         exp_num = Number(token.attr_val.substring(e_index + 1))
                                     }
                                     token.attr_val = base_num * Math.pow(10, exp_num)
-                                    if (token.attr_val > 128) {
+                                    if (exp_num > 128) {
                                         // TODO
                                         errors.push(new Error("real " + token.attr_val + " out of range", line_num, line_pos))
                                         token.token_type = "error"
