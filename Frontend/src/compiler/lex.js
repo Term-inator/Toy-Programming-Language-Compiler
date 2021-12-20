@@ -279,7 +279,7 @@ export function lexicalAnalyzer(input) {
                                 token.token_type = 'realnum'
                                 if (num_type === 2) {
                                     token.attr_val = Number(token.attr_val)
-                                    if (exp_num > 128) {
+                                    if (token.attr_val >= Math.pow(10, 129)) {
                                         errors.push(new Error("real " + token.attr_val + " out of range", line_num, line_pos))
                                         token.token_type = "error"
                                     }
