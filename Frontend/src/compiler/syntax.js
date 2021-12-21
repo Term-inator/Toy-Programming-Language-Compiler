@@ -565,7 +565,6 @@ export function syntaxAnalyzer(input) {
                     errors: errors
                 }
             } else {
-                // TODO
                 console.log('fail')
                 return {
                     ast: null,
@@ -574,7 +573,6 @@ export function syntaxAnalyzer(input) {
             }
         }
         if (empty(state_stack, symbol_stack) && i === input.length - 1) {
-            // TODO
             console.log('fail')
             return {
                 ast: null,
