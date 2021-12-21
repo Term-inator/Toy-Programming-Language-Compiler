@@ -1,7 +1,7 @@
 <template>
     <div class='tokenpage'>
         <div class='main'>
-            <Table height="600" :columns="token_header" :data="token_data" size='large' className='column'></Table>
+            <Table height="500" :columns="token_header" :data="token_data" size='large' className='column'></Table>
         </div>
     </div>
 </template>
