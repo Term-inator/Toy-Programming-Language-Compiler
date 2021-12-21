@@ -435,6 +435,10 @@ export function syntaxAnalyzer(input) {
         }
         let state_top = top(state_stack)
         let command = analyze_table[state_top][tokenToTerminal(token)]
+        if(command === undefined) {
+            errors.push(new Error("unexpected symbol " + token.attr_val, token.line_num, token.line_pos))
+            continue
+        }
         command = parseCommand(command)
         
         if (command.op === 's') {

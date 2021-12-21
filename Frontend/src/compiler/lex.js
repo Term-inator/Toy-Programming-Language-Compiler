@@ -29,7 +29,7 @@ function initStateSet() {
     }
 }
 
-let keywords = ["int", "real", "if", "then", "else", "while"]
+let keywords = ["int", "real", "if", "then", "else"]
 
 function isIgnore(c) {
     if (c === '\n' || c === '\t' || c === ' ') {
