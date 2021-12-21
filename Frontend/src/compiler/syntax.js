@@ -430,6 +430,9 @@ export function syntaxAnalyzer(input) {
     // console.log(input)
     for (let i = 0; i < input.length; ++i) {
         let token = input[i]
+        if(token.token_type === 'comments') {
+            continue
+        }
         let state_top = top(state_stack)
         let command = analyze_table[state_top][tokenToTerminal(token)]
         command = parseCommand(command)

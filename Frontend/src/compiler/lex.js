@@ -222,7 +222,9 @@ export function lexicalAnalyzer(input) {
         let c = input[now_index]
         let next_c = input[now_index + 1]
         //非法字符,报错后读下一个
-        if (isLetter(c) === false && isBound(c) === false && isDigit(c) === false && isDivi(c) === false && isOp1(c) === false && isOp2(c) === false && isIgnore(c) === false && c !== '.') {
+        if (isLetter(c) === false && isBound(c) === false && isDigit(c) === false && 
+            isDivi(c) === false && isOp1(c) === false && isOp2(c) === false 
+            && isIgnore(c) === false && c !== '.') {
             let wrongtoken = new LexAttr("error", c, line_num, line_pos)
             errors.push(new Error("unexpected token " + c, line_num, line_pos - 1))
             tokens.push(wrongtoken)
@@ -291,11 +293,9 @@ export function lexicalAnalyzer(input) {
                                     let exp_num = Number(token.attr_val.substring(e_index + 2))
                                     token.attr_val = base_num * Math.pow(10, -exp_num)
                                     if (exp_num > 128) {
-                                        // TODO
                                         errors.push(new Error("real " + token.attr_val + " out of range", line_num, line_pos - token_val.length))
                                         token.token_type = "error"
                                     }
-
                                 }
                                 else if (num_type === 4) { // 4：正指数
                                     let e_index = token.attr_val.search(/e/i)
@@ -309,7 +309,6 @@ export function lexicalAnalyzer(input) {
                                     }
                                     token.attr_val = base_num * Math.pow(10, exp_num)
                                     if (exp_num > 128) {
-                                        // TODO
                                         errors.push(new Error("real " + token.attr_val + " out of range", line_num, line_pos - token_val.length))
                                         token.token_type = "error"
                                     }
